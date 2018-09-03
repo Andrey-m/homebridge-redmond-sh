@@ -1,0 +1,42 @@
+{
+        "bridge": {
+            "name": "Homebridge",
+            "username": "CC:22:3D:E3:CE:30",
+            "port": 51826,
+            "pin": "031-45-154"
+        },
+        
+        "description": "This is an example configuration file with one fake accessory and one fake platform. You can use this as a template for creating your own configuration file containing devices you actually own.",
+    
+        "accessories": [
+            {
+                "accessory": "WeMo",
+                "name": "Coffee Maker"
+            }
+        ],
+    
+        "platforms": [
+            {
+                "platform": "cmdSwitch2",
+                "name": "Switches",
+                "switches": [
+                    {
+                        "name": "Свет",
+                        "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00",
+                        "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00",
+                        "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 | grep -l 'ON'",
+                        "manufacturer": "Redmond",
+                        "model": "RSP-202S"
+                    },
+                    {
+                        "name": "Обогреватель",
+                        "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00 on",
+                        "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00 off",
+                        "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 | grep -l 'ON'",
+                        "manufacturer": "Redmond",
+                        "model": "RSP-103S"
+                    }
+                ]
+            }
+        ]
+    }
