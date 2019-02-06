@@ -34,10 +34,22 @@ traceme "Reading characteristics desc"
 traceme "Attempt to write something -> 0x000c"
 #gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
 
+
+# 55:00:ff:b5:4c:75:b1:b4:0c:88:ef:aa
+# 55:01:ff:b5:4c:75:b1:b4:0c:88:ef:aa
+# 55:02:ff:b5:4c:75:b1:b4:0c:88:ef:aa
+# 55:03:ff:b5:4c:75:b1:b4:0c:88:ef:aa
+# 55:09:ff:b5:4c:75:b1:b4:0c:88:ef:aa
+#sdf
+
 (( i=0 ))
 
 if true; then  # Auth sequence.
-  while true; do
+  while [ $i -lt 2 ]; do
+    #echo "Restarting hci0"
+    #repll=`/home/ubuntu/r4s_webserver/restart_ble.sh`
+    #sleep 0.5;
+    #echo "trying:$i"
     traceme "Attempt to write something -> 0x000c"
     gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
     sleep 0.5;

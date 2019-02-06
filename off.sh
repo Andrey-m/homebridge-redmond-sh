@@ -21,7 +21,8 @@ fi
 
 (( i=0 ))
 
-while true; do
+ while [ $i -lt 2 ]; do
+    echo "trying:$i"
     gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100 > /dev/null
     sleep 0.2
 
@@ -48,16 +49,19 @@ while true; do
 
     response=$(gatttool -b $devicemac -t random --char-read -a 0x000b -n $magic)
     reply=`echo $response | grep "descriptor:" | sed "s/.*descriptor: \(.*\)/\\1/g"`
+    is_on=`echo $reply | awk '{print $4}'`
 
-    if [[ $reply ==  "" ]]; then
-        echo "No reply"
-        #(( i = (i + 1) % 256 ));
+    if [[ $is_on == "00" ]]; then 
+	    echo  "OFF"
+	    break;
     else
-        device_on=`echo $reply | awk '{print $12}'`
-
-        if [[ $device_on == "00" ]]; then
-            traceme "OFF"
-            break;
-        fi
-    fi
+	    echo  "Trying again..."
+    fi;
+      
+    if [[ $reply == "" ]]; then
+	    echo "No reply"
+	    (( i = (i + 1) % 256 ));
+    else    
+	    (( i = (i + 1) % 256 ));
+    fi        
 done;

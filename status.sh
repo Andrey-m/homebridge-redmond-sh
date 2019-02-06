@@ -2,6 +2,7 @@
 
 devicemac="$1"
 
+
 function tracemen()
 {
     echo -e -n $1
@@ -21,7 +22,8 @@ fi
 
 (( i=0 ))
 
-while true; do
+while [ $i -lt 2 ]; do
+    echo "trying:$i"
     gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100 > /dev/null
     sleep 0.2
 
@@ -45,11 +47,11 @@ while true; do
 
     if [[ $reply == "" ]]; then
         echo "No reply"
-        #(( i = (i + 1) % 256 ));
+        (( i = (i + 1) % 256 ));
     else
-        device_on=`echo $reply | awk '{print $12}'`
+        is_on=`echo $reply | awk '{print $12}'`
 
-        if [[ $device_on == "00" ]]; then
+        if [[ $is_on == "00" ]]; then
             traceme "OFF"
             break;
         else
