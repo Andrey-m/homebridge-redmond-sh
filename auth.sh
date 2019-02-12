@@ -46,8 +46,6 @@ traceme "Attempt to write something -> 0x000c"
 
 if true; then  # Auth sequence.
   while [ $i -lt 2 ]; do
-    #echo "Restarting hci0"
-    #repll=`/home/ubuntu/r4s_webserver/restart_ble.sh`
     #sleep 0.5;
     #echo "trying:$i"
     traceme "Attempt to write something -> 0x000c"
