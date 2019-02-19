@@ -1,17 +1,20 @@
 #!/bin/bash
 
+#C8:54:A9:29:1B:7F
 devicemac="$1"
 command="$2"
 
 
 function tracemen()
 { 
-  echo -e -n $1
+  #echo -e -n $1 >>kettellog.txt
+  return 0
 }
 
-function traceme()
+function traceme() 
 { 
-  echo -e $1
+  #echo -e $1 >>kettellog.txt
+  return 0
 }
 
 if [[ $devicemac == "_" ]]; then
@@ -47,12 +50,17 @@ traceme "Attempt to write something -> 0x000c"
 # 55:03:ff:b5:4c:75:b1:b4:0c:88:ef:aa
 #sdf
 
+
 (( i=0 ))
 
 if true; then  # Auth sequence.
-  while true; do
+  while [ $i -lt 2 ]; do
+    #echo "Restarting hci0"
+    #repll=`/home/ubuntu/r4s_webserver/restart_ble.sh`
+    #sleep 0.5;
+    #echo "trying:$i"
     traceme "Attempt to write something -> 0x000c"
-    gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
+    gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100 > /dev/null
     sleep 0.5;
     
     #gatttool -b $devicemac -t random --listen &
@@ -61,20 +69,24 @@ if true; then  # Auth sequence.
     
     traceme "Attempt to write something -> 0x000e ($magic)"
     sleep 0.5;
-    gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >response  &
+    gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >/tmp/response  &
     gettpid=$!
     #echo "Forked to pid $gettpid"
     sleep 0.5;
     #echo "Killing to pid $gettpid"
     kill $gettpid  >/dev/null 2>/dev/null
     wait $gettpid 2>/dev/null
-    response=`cat response`;
+    response=`cat /tmp/response`;
     reply=`echo $response | grep "value:" | sed "s/.*value: \(.*\)/\\1/g"`
-    echo -n "REPLY:$reply"
+    #echo -n "REPLY:$reply"
     
     is_authorized=`echo $reply | awk '{print $4}'`
     traceme " <$is_authorized> "
     if [[ $is_authorized == "01" ]]; then 
+      traceme  "Authorized"
+      break;
+    fi;
+    if [[ $is_authorized == "02" ]]; then 
       traceme  "Authorized"
       break;
     fi;
@@ -94,13 +106,11 @@ fi;
   
 traceme "Ok";
 
-
-# Requesting status
-
-if [[ $command == "query" || $command == "queryone" ]]; then
-  while true; do
+if [[ $command == "status" ]]; then
+  while [ $i -lt 2 ]; do
+    #echo "trying:$i"
     #echo "Attempt to write something -> 0x000c"
-    gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
+    gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100 >/dev/null 2>/dev/null
     sleep 0.5;
     
     #gatttool -b $devicemac -t random --listen &
@@ -109,14 +119,15 @@ if [[ $command == "query" || $command == "queryone" ]]; then
     
     #echo "Attempt to write something -> 0x000e ($magic)"
     sleep 0.5;
-    gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >response  &
+    gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >/tmp/response 2>/dev/null &
     gettpid=$!
     #echo "Forked to pid $gettpid"
     sleep 0.5;
     #echo "Killing to pid $gettpid"
     kill $gettpid  >/dev/null 2>/dev/null
     wait $gettpid 2>/dev/null
-    response=`cat response`;
+    response=`cat /tmp/response`;
+    #echo $response
     reply=`echo $response | grep "value:" | sed "s/.*value: \(.*\)/\\1/g"`
          
     
@@ -124,22 +135,46 @@ if [[ $command == "query" || $command == "queryone" ]]; then
       echo "No reply"
       (( i = (i + 1) % 256 ));
     else    
-      kettle_keeptemp=`echo $reply | awk '{print $6}'`    
+      #kettle_keeptemp=`echo $reply | awk '{print $6}'`    
+      #kettle_temp=`echo $reply | awk '{print $14}'`
+      #kettle_temp=`echo $reply | awk '{print $6}'`
+      #kettle_keeptemp=`echo $reply | awk '{print $14}'`    
+      #kettle_keeptemp_mode=`echo $reply | awk '{print $5}'`    
       kettle_on=`echo $reply | awk '{print $12}'`
-      kettle_temp=`echo $reply | awk '{print $14}'`
     
       if [[ $kettle_on == "00" ]]; then
-        echo -n "OFF"
+        echo "OFF"
+        #echo "state:OFF"
       else
-        echo -n "ON"
+        echo "ON"
+        #echo "state:ON"
+      fi
+
+
+      kettle_keeptemp="0"
+
+      if [[ $kettle_keeptemp_mode == "01" ]]; then
+        kettle_keeptemp="40"
+      elif [[ $kettle_keeptemp_mode == "02" ]]; then
+        kettle_keeptemp="55"
+      elif [[ $kettle_keeptemp_mode == "03" ]]; then
+        kettle_keeptemp="70"
+      elif [[ $kettle_keeptemp_mode == "04" ]]; then
+        kettle_keeptemp="85"
+      elif [[ $kettle_keeptemp_mode == "05" ]]; then
+        kettle_keeptemp="95"
       fi
     
-      echo -n " "  
-      echo -n "$((16#$kettle_temp))C "
-      echo -n "Will keep: $((16#$kettle_keeptemp))C "
-      echo "REPLY:$reply"
+      #echo -n " "  
+      #echo -n "$((16#$kettle_temp))C "
+      #echo -n "Will keep: $((16#$kettle_keeptemp))C "
+      #echo -n "Will keep: $(($kettle_keeptemp))C "
+      #echo "REPLY:$reply"
+
+      #echo "temp:$((16#$kettle_temp))"
+      #echo "heating:$(($kettle_keeptemp))"
       
-      if [[ $command == "queryone" ]]; then
+      if [[ $command == "status" ]]; then
          break;
       fi;    
       (( i = (i + 1) % 256 ));
@@ -149,71 +184,32 @@ if [[ $command == "query" || $command == "queryone" ]]; then
 fi;
 
 if [[ $command == "on" ]]; then
-    while true; do
+    while [ $i -lt 2 ]; do
+      #echo "trying:$i"
       #echo "Attempt to write something -> 0x000c"
-      gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
+      gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100 >/dev/null
       sleep 0.5;
-      magic=`printf "55%02x0500000000aa" $i`
+      magic="550003aa"
       
       #echo "Attempt to write something -> 0x000e ($magic)"
       sleep 0.5;
-      gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >response  &
+      gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >/tmp/response  &
       gettpid=$!
       #echo "Forked to pid $gettpid"
       sleep 0.5;
       #echo "Killing to pid $gettpid"
       kill $gettpid  >/dev/null 2>/dev/null
       wait $gettpid 2>/dev/null
-      response=`cat response`;
+      response=`cat /tmp/response`;
       reply=`echo $response | grep "value:" | sed "s/.*value: \(.*\)/\\1/g"`
       
       is_on=`echo $reply | awk '{print $4}'`
-      echo " <$is_on> "
+      #echo " <$is_on> "
       if [[ $is_on == "01" ]]; then 
-	echo  "Success"
+	echo  "ON"
 	break;
-      else
-	echo  "Trying again..."
-      fi;
-      
-      if [[ $reply == "" ]]; then
-	echo "No reply"
-	(( i = (i + 1) % 256 ));
-      else    
-	(( i = (i + 1) % 256 ));
-      fi        
-   done;
-    
-fi;
-
-if [[ $command == "keeptemp" ]]; then
-    keep_temp="$3"
-
-    while true; do
-      #echo "Attempt to write something -> 0x000c"
-      gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
-      sleep 0.5;
-      magic=`printf "55%02x050000%02x00aa" $i $keep_temp`
-      
-      #echo "Attempt to write something -> 0x000e ($magic)"
-      sleep 0.5;
-      gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >response  &
-      gettpid=$!
-      #echo "Forked to pid $gettpid"
-      sleep 0.5;
-      #echo "Killing to pid $gettpid"
-      kill $gettpid  >/dev/null 2>/dev/null
-      wait $gettpid 2>/dev/null
-      response=`cat response`;
-      reply=`echo $response | grep "value:" | sed "s/.*value: \(.*\)/\\1/g"`
-      
-      is_on=`echo $reply | awk '{print $4}'`
-      echo " <$is_on> "
-      if [[ $is_on == "01" ]]; then 
-	echo  "Success"
-	break;
-      else
-	echo  "Trying again..."
+      #else
+	#echo  "Trying again..."
       fi;
       
       if [[ $reply == "" ]]; then
@@ -227,31 +223,32 @@ if [[ $command == "keeptemp" ]]; then
 fi;
 
 if [[ $command == "off" ]]; then
-   while true; do
+   while [ $i -lt 2 ]; do
+      #echo "trying:$i"
       #echo "Attempt to write something -> 0x000c"
-      gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100
+      gatttool -b $devicemac -t random --char-write-req --handle=0x000c --value=0100  >/dev/null
       sleep 0.5;
       magic=`printf "55%02x04aa" $i`
       
       #echo "Attempt to write something -> 0x000e ($magic)"
       sleep 0.5;
-      gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >response  &
+      gatttool -b $devicemac -t random --char-write-req --handle=0x000e --value=$magic --listen >/tmp/response  &
       gettpid=$!
       #echo "Forked to pid $gettpid"
       sleep 0.5;
       #echo "Killing to pid $gettpid"
       kill $gettpid  >/dev/null 2>/dev/null
       wait $gettpid 2>/dev/null
-      response=`cat response`;
+      response=`cat /tmp/response`;
       reply=`echo $response | grep "value:" | sed "s/.*value: \(.*\)/\\1/g"`
       
       is_on=`echo $reply | awk '{print $4}'`
-      echo " <$is_on> "
+      #echo " <$is_on> "
       if [[ $is_on == "01" ]]; then 
-	echo  "Success"
+	echo  "OFF"
 	break;
-      else
-	echo  "Trying again..."
+    #  else
+	#echo  "Trying again..."
       fi;
       
       if [[ $reply == "" ]]; then
@@ -262,4 +259,3 @@ if [[ $command == "off" ]]; then
       fi        
    done;
 fi;
-

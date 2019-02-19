@@ -7,10 +7,10 @@ npm install -g --unsafe-perm homebridge-cmdswitch2
 Пробуем авторизоваться: auth.sh 00:00:00:00:00:00  
 вместо 00:00:00:00:00:00 указываете МАК своего устройства  
 
-После пытаетесь включить, выключить или узнать текущее состояние запуская on.sh или off.sh или status.sh  
-on.sh 00:00:00:00:00:00  
-off.sh 00:00:00:00:00:00  
-status.sh 00:00:00:00:00:00  
+После пытаетесь включить, выключить или узнать текущее состояние запуская connect.sh  
+connect.sh 00:00:00:00:00:00 on
+connect.sh 00:00:00:00:00:00 off
+connect.sh 00:00:00:00:00:00 status
 
 если всё ОК то прописываем в конфиг и не забываем поменять 00:00:00:00:00:00  
 
@@ -23,9 +23,9 @@ status.sh 00:00:00:00:00:00
         "switches": [
             {
                 "name": "Свет",
-                "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00",
-                "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00",
-                "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 | grep -l 'ON'",
+                "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00 on",
+                "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00 off",
+                "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 status | grep -l 'ON'",
                 "manufacturer": "Redmond",
                 "model": "RSP-202S"
             },
@@ -33,7 +33,7 @@ status.sh 00:00:00:00:00:00
                 "name": "Обогреватель",
                 "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00 on",
                 "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00 off",
-                "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 | grep -l 'ON'",
+                "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 status | grep -l 'ON'",
                 "manufacturer": "Redmond",
                 "model": "RSP-103S"
             }
