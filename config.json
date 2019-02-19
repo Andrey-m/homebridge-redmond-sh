@@ -22,17 +22,17 @@
                 "switches": [
                     {
                         "name": "Свет",
-                        "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00 on",
-                        "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00 off",
-                        "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 status | grep -l 'ON'",
+                        "on_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 on",
+                        "off_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 off",
+                        "state_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 status | grep -l 'ON'",
                         "manufacturer": "Redmond",
                         "model": "RSP-202S"
                     },
                     {
                         "name": "Обогреватель",
-                        "on_cmd": "/home/pi/on.sh 00:00:00:00:00:00 on",
-                        "off_cmd": "/home/pi/off.sh 00:00:00:00:00:00 off",
-                        "state_cmd": "/home/pi/status.sh 00:00:00:00:00:00 status | grep -l 'ON'",
+                        "on_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 on",
+                        "off_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 off",
+                        "state_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 status | grep -l 'ON'",
                         "manufacturer": "Redmond",
                         "model": "RSP-103S"
                     }
