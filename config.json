@@ -25,6 +25,7 @@
                         "on_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 on",
                         "off_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 off",
                         "state_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 status | grep -l 'ON'",
+                        "timeout": "3",
                         "manufacturer": "Redmond",
                         "model": "RSP-202S"
                     },
@@ -33,6 +34,7 @@
                         "on_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 on",
                         "off_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 off",
                         "state_cmd": "/home/pi/connect.sh 00:00:00:00:00:00 status | grep -l 'ON'",
+                        "timeout": "3",
                         "manufacturer": "Redmond",
                         "model": "RSP-103S"
                     }
